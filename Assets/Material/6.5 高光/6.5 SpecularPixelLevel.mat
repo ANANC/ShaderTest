@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 6
+  m_Name: 6.5 SpecularPixelLevel
   m_Shader: {fileID: 4800000, guid: 7c48ed595c9b28b4da090e1e125ab9be, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 6
+  m_Name: 6.6 BlinnPhong
   m_Shader: {fileID: 4800000, guid: 1d1464eb5ad8ce743ad331e5556b2e25, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4

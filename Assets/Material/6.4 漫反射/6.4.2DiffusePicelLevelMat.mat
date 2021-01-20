@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 6.4
+  m_Name: 6.4.2DiffusePicelLevelMat
   m_Shader: {fileID: 4800000, guid: a022b3e85d0ad5c4db66a327aed000ef, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
