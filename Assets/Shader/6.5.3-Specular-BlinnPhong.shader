@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
-Shader "Custom/6.5.2-Specular-PixelLevel"
+﻿Shader "Custom/6.5.3-Specular-BlinnPhong"
 {
 	Properties
 	{
@@ -59,8 +57,9 @@ Shader "Custom/6.5.2-Specular-PixelLevel"
 
 				fixed3 reflectDir = normalize(reflect(-worldLightDir, worldNormal));
 				fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
+				fixed3 halfDir = normalize(worldLightDir + viewDir);
 
-				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(reflectDir, viewDir)), _Gloss);
+				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0,dot(reflectDir, halfDir)), _Gloss);
 
 				return fixed4(ambient + diffuse + specular,1.0);
 			}
