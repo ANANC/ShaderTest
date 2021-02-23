@@ -1,6 +1,10 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Custom/7.2 NormalMapTangent"
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Custom/7.2 NormalMapWorldSpace"
 {
     Properties
     {
@@ -43,8 +47,9 @@ Shader "Custom/7.2 NormalMapTangent"
 		struct v2f {
 			float4 pos:SV_POSITION;
 			float4 uv:TEXCOORD0;
-			float3 lightDir:TEXCOORD1;
-			float3 viewDir:TEXCOORD2;
+			float4 TtoW0:TEXCOORD1;
+			float4 TtoW1:TEXCOORD2;
+			float4 TtoW2:TEXCOORD3;
 		};
 
 
@@ -55,17 +60,33 @@ Shader "Custom/7.2 NormalMapTangent"
 			o.uv.xy = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
 			o.uv.zw = v.texcoord.xy * _BumpMap_ST.xy + _BumpMap_ST.zw;
 
-			TANGENT_SPACE_ROTATION;
+			float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+			fixed3 worldNormal = UnityObjectToWorldNormal(v.normal);
+			fixed3 worldTangent = UnityObjectToWorldDir(v.tangent.xyz);
+			fixed3 worldBinormal = cross(worldNormal, worldTangent) * v.tangent.w;
 
-			o.lightDir = mul(rotation, ObjSpaceLightDir(v.vertex)).xyz;
-			o.viewDir = mul(rotation, ObjSpaceViewDir(v.vertex)).xyz;
+			o.TtoW0 = float4(worldTangent.x, worldBinormal.x, worldNormal.x, worldPos.x);
+			o.TtoW1 = float4(worldTangent.y, worldBinormal.y, worldNormal.y, worldPos.y);
+			o.TtoW2 = float4(worldTangent.z, worldBinormal.z, worldNormal.z, worldPos.z);
 
 			return o;
 		}
 
 		fixed4 frag(v2f i) :SV_Target{
-			fixed3 tangentLightDir = normalize(i.lightDir);
-			fixed3 tangentViewDir = normalize(i.viewDir);
+			float3 worldPos = float3(i.TtoW0.w,i.TtoW1.w,i.TtoW2.w);
+
+			fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
+			fixed3 viewDir = normalize(UnityWorldSpaceViewDir(worldPos));
+
+			fixed3 bump = UnpackNormal(tex2D(_BumpMap, i.uv.zw));
+			bump.xy *= _BumpScale;
+			bump.z = sqrt(1.0 - saturate(dot(bump.xy, bump.xy)));
+			bump = normalize(half3(dot(i.TtoW0.xyz, bump), dot(i.TtoW1.xyz, bump), dot(i.TtoW2.xyz, bump)));
+
+			//----------
+
+			fixed3 tangentLightDir = normalize(lightDir);
+			fixed3 tangentViewDir = normalize(viewDir);
 
 			fixed4 packedNormal = tex2D(_BumpMap, i.uv.zw);
 			fixed3 tangentNormal;
