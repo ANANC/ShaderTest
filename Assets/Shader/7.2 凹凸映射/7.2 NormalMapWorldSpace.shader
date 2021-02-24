@@ -1,9 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
+﻿
 Shader "Custom/7.2 NormalMapWorldSpace"
 {
     Properties
@@ -61,9 +56,9 @@ Shader "Custom/7.2 NormalMapWorldSpace"
 			o.uv.zw = v.texcoord.xy * _BumpMap_ST.xy + _BumpMap_ST.zw;
 
 			float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-			fixed3 worldNormal = UnityObjectToWorldNormal(v.normal);
-			fixed3 worldTangent = UnityObjectToWorldDir(v.tangent.xyz);
-			fixed3 worldBinormal = cross(worldNormal, worldTangent) * v.tangent.w;
+			fixed3 worldNormal = UnityObjectToWorldNormal(v.normal);					//法线
+			fixed3 worldTangent = UnityObjectToWorldDir(v.tangent.xyz);					//切线
+			fixed3 worldBinormal = cross(worldNormal, worldTangent) * v.tangent.w;		//副切线
 
 			o.TtoW0 = float4(worldTangent.x, worldBinormal.x, worldNormal.x, worldPos.x);
 			o.TtoW1 = float4(worldTangent.y, worldBinormal.y, worldNormal.y, worldPos.y);
@@ -75,10 +70,11 @@ Shader "Custom/7.2 NormalMapWorldSpace"
 		fixed4 frag(v2f i) :SV_Target{
 			float3 worldPos = float3(i.TtoW0.w,i.TtoW1.w,i.TtoW2.w);
 
-			fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
-			fixed3 viewDir = normalize(UnityWorldSpaceViewDir(worldPos));
+			// 因为UnityWorldSpaceLightDir是从点到光源的方向。所以需要反向。
+			fixed3 lightDir = -normalize(UnityWorldSpaceLightDir(worldPos));
+			fixed3 viewDir = -normalize(UnityWorldSpaceViewDir(worldPos));
 
-			fixed3 bump = UnpackNormal(tex2D(_BumpMap, i.uv.zw));
+			fixed3 bump = UnpackNormal(tex2D(_BumpMap, i.uv.zw));	//得到法线
 			bump.xy *= _BumpScale;
 			bump.z = sqrt(1.0 - saturate(dot(bump.xy, bump.xy)));
 			bump = normalize(half3(dot(i.TtoW0.xyz, bump), dot(i.TtoW1.xyz, bump), dot(i.TtoW2.xyz, bump)));
@@ -99,8 +95,8 @@ Shader "Custom/7.2 NormalMapWorldSpace"
 			fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo; //环境映射
 			fixed3 diffuse = _LightColor0.rgb * albedo * max(0, dot(tangentNormal, tangentLightDir));	//漫反射
 
-			fixed3 halfDir = normalize(tangentLightDir + tangentViewDir);	//切线
-			fixed3 specular = _LightColor0.rbg * _Specular.rgb * pow(max(0, dot(tangentNormal, halfDir)), _Gloss);//副切线
+			fixed3 halfDir = normalize(tangentLightDir + tangentViewDir);	//光照+视图角度
+			fixed3 specular = _LightColor0.rbg * _Specular.rgb * pow(max(0, dot(tangentNormal, halfDir)), _Gloss);
 
 			return fixed4(ambient + diffuse + specular, 1.0);
 		}
