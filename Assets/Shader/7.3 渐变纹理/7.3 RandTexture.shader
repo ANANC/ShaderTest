@@ -8,8 +8,6 @@
 		_Gloss("Gloss",Range(8.0,256)) = 20
 	}
 
-		//todo: 因为模型没有凹凸 看不出效果，搞一个特殊的来试试
-
 
 	SubShader
 	{
