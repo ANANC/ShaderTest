@@ -3,7 +3,7 @@
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
-		_RampTexture("RampTexture",2D) = "white" {}
+		_RampTex("RampTexture",2D) = "white" {}
 		_Specular("Specular",Color) = (1,1,1,1)
 		_Gloss("Gloss",Range(8.0,256)) = 20
 	}
@@ -12,7 +12,7 @@
 	SubShader
 	{
 		Pass{
-			Tags { "RenderType" = "ForwardBase" }
+			Tags { "LightMode" = "ForwardBase" }
 
 			CGPROGRAM
 			#pragma vertex vert
@@ -63,7 +63,7 @@
 
 				fixed3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
 				fixed3 halfDir = normalize(worldLightDir + viewDir);
-				fixed3 specular = _LightColor0.rbg * _Specular.rgb * pow(max(0, dot(worldNormal, halfDir)), _Gloss);
+				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0, dot(worldNormal, halfDir)), _Gloss);
 
 				return fixed4(ambient + diffuse + specular, 1.0f);
 			}
