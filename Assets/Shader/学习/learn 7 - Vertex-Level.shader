@@ -26,7 +26,7 @@ Shader "Custom/learn 7 - Vertex-Level"
 			//顶点着色器的输入结构体 application to vertex 应用程序传递到顶点着色器
 			struct a2v {
 				float4 vertex:POSITION;			//坐标
-				float3 normal:NORMAL;			//存储法线信息
+				float3 normal:NORMAL;			//顶点法线信息
 			};
 
 			//顶点着色器的输出结构体/片元着色器的输入结构体 vertex to fragment 顶点着色器传递到片元着色器
@@ -64,9 +64,11 @@ Shader "Custom/learn 7 - Vertex-Level"
 				// dot(worldNormal, worldLight) = 法线 点乘 指向光源方向 = 法线和指向光源方向的角度。 如果是负数，说明光是从背面照射，忽略掉。夹角越小，光照越大。
 				//saturate：数值规范化（0-1）。 
 				//计算后的明度用于颜色的控制。角度越小，光照越大，颜色越明亮，角度越大，光照越小，颜色越暗淡。
+				fixed lightness = dot(worldNormal, worldLight);
+				lightness = saturate(lightness);
 
 				//当前通道光源颜色 * 用户配置的漫反射颜色 * 明度
-				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * saturate(dot(worldNormal, worldLight));
+				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * lightness;
 
 				//当前点颜色 = 环境光 + （综合的）漫反射
 				o.color = ambient + diffuse;

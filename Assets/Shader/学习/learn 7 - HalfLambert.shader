@@ -1,4 +1,4 @@
-﻿Shader "Custom/learn 7 - Pixel-Level"
+﻿Shader "Custom/learn 7 - HalfLambert"
 {
 	Properties
 	{
@@ -29,7 +29,7 @@
 			//顶点着色器的输出结构体/片元着色器的输入结构体 vertex to fragment 顶点着色器传递到片元着色器
 			struct v2f {
 				float4 pos:SV_POSITION;			//（裁剪空间）顶点位置
-				fixed3 worldNormal : TEXCOORD0;	//(世界空间）法线
+				fixed3 worldNormal : TEXCOORD0;	//顶点纹理坐标
 			};
 
 
@@ -59,12 +59,11 @@
 				//归一化光源
 				fixed3 worldLight = normalize(_WorldSpaceLightPos0.xyz);
 
-				//计算出明度[0,1]
-				fixed lightness = dot(worldNormal, worldLight);
-				lightness = saturate(lightness);
+				//明度的范围控制在 [-1,1]
+				fixed halfLambert = dot(worldNormal, worldLight) * 0.5 + 0.5;
 
 				//计算出漫反射颜色
-				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * lightness;
+				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * halfLambert;
 
 				//片元颜色 环境光+漫反射
 				fixed3 color = ambient + diffuse;
@@ -72,8 +71,8 @@
 				return fixed4(color, 1.0);
 			}
 
-			ENDCG								//结束渲染标志位
-		}
+		ENDCG								//结束渲染标志位
+	}
 	}
 		FallBack "Diffuse"
 }
