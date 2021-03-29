@@ -65,10 +65,10 @@
 
 				// 得到 出射光 和 视图方向 的角度。 并规范在[0,1]的范围内。
 				fixed specularPower = saturate(dot(reflectDir, viewDir));
-				// 得到specularPower 的 _Gloss次幂  高光范围的控制
+				// 得到specularPower 的 _Gloss次幂  高光强度的控制
 				specularPower = pow(specularPower, _Gloss);
 
-				//高光 = 光源颜色 * 用户定义的高光颜色 * 高光范围控制
+				//高光 = 光源颜色 * 用户定义的高光颜色 * 高光强度控制
 				fixed3 specular = _LightColor0.rgb * _Specular.rgb * specularPower;
 
 				//顶点颜色 + 高光
@@ -114,10 +114,10 @@
 
 				// 得到 出射光 和 视图方向 的角度。 并规范在[0,1]的范围内。
 				fixed specularPower = saturate(dot(reflectDir, viewDir));
-				// 得到specularPower 的 _Gloss次幂  高光范围的控制
+				// 得到specularPower 的 _Gloss次幂  高光强度的控制
 				specularPower = pow(specularPower, _Gloss);
 
-				//高光 = 光源颜色 * 用户定义的高光颜色 * 高光范围控制
+				//高光 = 光源颜色 * 用户定义的高光颜色 * 高光强度控制
 				fixed3 specular = _LightColor0.rgb * _Specular.rgb * specularPower;
 
 				//顶点颜色 = 环境光 + 漫反射

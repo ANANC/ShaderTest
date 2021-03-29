@@ -47,7 +47,7 @@
 				//进行 （模型)M(世界)V(观察)P(裁剪) 坐标转换
 				o.pos = UnityObjectToClipPos(v.vertex);
 
-				//世界空间的法线 并归一化
+				//世界空间的法线
 				o.worldNormal = mul(v.normal, (float3x3)unity_WorldToObject);
 
 				//坐标转换 得世界空间的坐标
@@ -78,19 +78,19 @@
 				//世界空间的视图方向 = 归一化（世界空间下顶点坐标 指向 世界空间下的摄像机位置 的方向 ）
 				fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos);
 
-				// 对视角 = 指向光源方向 + 指向摄像机方向
+				// 半角向量 = 指向光源方向 + 指向摄像机方向
 				fixed3 halfDif = normalize(worldLight + viewDir);
 
-				// 得到 法线 和 对视角 的夹角
+				// 得到 法线 和 半角向量 的夹角
 				fixed specularPower = dot(worldNormal, halfDif);
 
 				// 得到 [0) 的范围
 				specularPower = max(0, specularPower);
 
-				// 得到specularPower 的 _Gloss次幂  高光范围的控制
+				// 得到specularPower 的 _Gloss次幂  高光强度的控制
 				specularPower = pow(specularPower, _Gloss);
 
-				//高光 = 光源颜色 * 用户定义的高光颜色 * 高光范围控制
+				//高光 = 光源颜色 * 用户定义的高光颜色 * 高光强度控制
 				fixed3 specular = _LightColor0.rgb * _Specular.rgb * specularPower;
 
 				//顶点颜色 = 环境光 + 漫反射
