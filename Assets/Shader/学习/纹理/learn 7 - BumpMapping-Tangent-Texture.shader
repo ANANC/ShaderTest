@@ -41,7 +41,7 @@
 
 			struct v2f {
 				float4 pos:SV_POSITION;			//（裁剪空间）坐标
-				float2 uv:TEXCOORD0;			//纹理偏移
+				float4 uv:TEXCOORD0;			//纹理偏移
 				float3 lightDir:TEXCOORD1;		//光源方向
 				float3 viewDir:TEXCOORD2;		//视图方向
 			};
@@ -54,9 +54,9 @@
 				//得到裁剪空间坐标
 				o.pos = UnityObjectToClipPos(v.vertex);
 
-
 				//纹理偏移 = 纹理 * 纹理缩放值 + 纹理偏移值
 				o.uv.xy = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+
 				//副法线（w) = 纹理 * 法线纹理的缩放值 + 法线纹理偏移值
 				o.uv.zw = v.texcoord.xy * _BumpMap_ST.xy + _BumpMap_ST.zw;
 
@@ -67,9 +67,9 @@
 				float3 normalizeTanget = normalize(v.tangent.xyz);
 
 				//副法线 = 法线 叉乘 切线
-				float3 binormal = cross(normalizeNormal, normalizeTanget);
+				//float3 binormal = cross(normalizeNormal, normalizeTanget);
 				//副法线 = 副法线 * 纹理副法线的长度
-				binormal = binormal * v.tangent.w;
+				//binormal = binormal * v.tangent.w;
 
 				//构造切线空间的坐标系。 之后可以使用rotation来代表世界空间到切线空间的矩阵 world->tangent
 				//将世界空间的切线都统一到切线空间进行计算,统一坐标系
@@ -84,41 +84,49 @@
 				return o;
 			}
 
-			///////////////////////////////////////////////////////////////////////
 
 			fixed4 frag(v2f i) : SV_Target{
+				//得到切线空间的光源方向
+				fixed3 tangentLightDir = normalize(i.lightDir);
 
-				// 归一化世界空间法线
-				fixed3 worldNormal = normalize(i.worldNormal);
+				//得到切线空间的视图方向
+				fixed3 tangentViewDir = normalize(i.viewDir);
+				
+				//得到纹理信息 uv:纹理偏移 zw:副法线
+				fixed4 packedNormal = tex2D(_BumpMap, i.uv.zw);
 
-				//得到光源
-				fixed3 worldLightDir = UnityWorldSpaceLightDir(i.worldPos);
-				//归一化光源
-				worldLightDir = normalize(worldLightDir);
+				//切线空间的法线
+				fixed3 tangentNormal;
+
+				//得到纹理采样 = 法线纹理的偏移值
+				tangentNormal = UnpackNormal(packedNormal);
+
+				//法线控制强度
+				tangentNormal.xy *= _BumpScale;
+
+				//副法线计算
+				tangentNormal.z = sqrt(1.0 - saturate(dot(tangentNormal.xy, tangentNormal.xy)));
 
 				//反射颜色 = 纹理颜色 * （用户输入）漫反射颜色
 				fixed3 albedo = tex2D(_MainTex, i.uv).rgb * _Diffuse.rgb;
 
-				//漫反射亮度 范围：[0)
-				fixed lightness = max(0, dot(worldNormal, worldLightDir));
+				//环境光 = 环境光 * 反射颜色
+				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
+
+				//漫反射亮度 范围：[0) 切线空间的法线 * 切线空间的光源
+				fixed lightness = max(0, dot(tangentNormal, tangentLightDir));
 
 				//漫反射颜色 = 通道光颜色 * 反射颜色 * 亮度
 				fixed3 diffuse = _LightColor0.rbg * albedo * lightness;
 
-				//视图方向并归一化
-				fixed3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
-
-				//半角方向
-				fixed3 halfDir = normalize(worldLightDir + viewDir);
+				//半角方向 切线空间法线 + 切线空间视图方向
+				fixed3 halfDir = normalize(tangentNormal + tangentViewDir);
 
 				//高光亮度 范围[0)
-				fixed specularLightness = pow(max(0, dot(worldNormal, halfDir)), _Gloss);
+				fixed specularLightness = pow(max(0, dot(tangentNormal, halfDir)), _Gloss);
 
 				//高光颜色 = 通道光颜色 * （用户输入）高光颜色 * 高光亮度
 				fixed3 specular = _LightColor0.rbg * _Specular.rbg * specularLightness;
-
-				//环境光 = 环境光 * 反射颜色
-				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
 
 				//片元颜色
 				float3 color = ambient + diffuse + specular;
