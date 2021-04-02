@@ -66,11 +66,6 @@
 				//归一化切线
 				float3 normalizeTanget = normalize(v.tangent.xyz);
 
-				//副法线 = 法线 叉乘 切线
-				//float3 binormal = cross(normalizeNormal, normalizeTanget);
-				//副法线 = 副法线 * 纹理副法线的长度
-				//binormal = binormal * v.tangent.w;
-
 				//构造切线空间的坐标系。 之后可以使用rotation来代表世界空间到切线空间的矩阵 world->tangent
 				//将世界空间的切线都统一到切线空间进行计算,统一坐标系
 				TANGENT_SPACE_ROTATION;

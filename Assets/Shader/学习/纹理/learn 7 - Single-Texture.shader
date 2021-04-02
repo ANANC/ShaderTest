@@ -30,7 +30,7 @@
 			struct a2v {
 				float4 vertex:POSITION;			//（应用空间）坐标
 				float3 normal:NORMAL;			//（应用空间）法线
-				float4 texcoord:TEXCOORD0;		//用户输入的纹理
+				float4 texcoord:TEXCOORD0;		//（应用空间）纹理
 			};
 
 			struct v2f {
@@ -70,7 +70,7 @@
 				//归一化光源
 				worldLightDir = normalize(worldLightDir);
 				
-				//反射颜色 = 纹理颜色 * （用户输入）漫反射颜色
+				//贴图颜色 = 纹理颜色 * （用户输入）漫反射颜色
 				fixed3 albedo = tex2D(_MainTex, i.uv).rgb * _Diffuse.rgb;
 				
 				//漫反射亮度 范围：[0)
