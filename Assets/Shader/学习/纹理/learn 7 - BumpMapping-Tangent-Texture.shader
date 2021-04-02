@@ -36,7 +36,7 @@
 				float4 vertex:POSITION;			//（应用空间）坐标
 				float3 normal:NORMAL;			//（应用空间）法线
 				float4 tangent:TANGENT;			//（应用空间）切线
-				float4 texcoord:TEXCOORD0;		//用户输入的纹理
+				float4 texcoord:TEXCOORD0;		//（应用空间）纹理
 			};
 
 			struct v2f {
@@ -57,7 +57,7 @@
 				//纹理偏移 = 纹理 * 纹理缩放值 + 纹理偏移值
 				o.uv.xy = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
 
-				//副法线（w) = 纹理 * 法线纹理的缩放值 + 法线纹理偏移值
+				//法线偏移 = 纹理 * 法线纹理的缩放值 + 法线纹理偏移值 副法线（w)
 				o.uv.zw = v.texcoord.xy * _BumpMap_ST.xy + _BumpMap_ST.zw;
 
 				//归一化法线
@@ -81,19 +81,19 @@
 
 
 			fixed4 frag(v2f i) : SV_Target{
-				//得到切线空间的光源方向
+				//归一化切线空间的光源方向
 				fixed3 tangentLightDir = normalize(i.lightDir);
 
-				//得到切线空间的视图方向
+				//归一化切线空间的视图方向
 				fixed3 tangentViewDir = normalize(i.viewDir);
 				
-				//得到纹理信息 uv:纹理偏移 zw:副法线
+				//得到法线贴图内容 = 法线图上的法线偏移坐标
 				fixed4 packedNormal = tex2D(_BumpMap, i.uv.zw);
 
 				//切线空间的法线
 				fixed3 tangentNormal;
 
-				//得到纹理采样 = 法线纹理的偏移值
+				//得到切线空间的法线 = 解包法线贴图
 				tangentNormal = UnpackNormal(packedNormal);
 
 				//法线控制强度
@@ -102,7 +102,7 @@
 				//副法线计算
 				tangentNormal.z = sqrt(1.0 - saturate(dot(tangentNormal.xy, tangentNormal.xy)));
 
-				//反射颜色 = 纹理颜色 * （用户输入）漫反射颜色
+				//贴图颜色 = 纹理颜色 * （用户输入）漫反射颜色
 				fixed3 albedo = tex2D(_MainTex, i.uv).rgb * _Diffuse.rgb;
 
 				//环境光 = 环境光 * 反射颜色
