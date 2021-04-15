@@ -1,24 +1,34 @@
-﻿Shader "Custom/8.3 Alpha-Test"
+﻿Shader "Custom/8.3 Alpha-Blend-ZWrite"
 {
-    Properties
-    {
-        _Color ("漫反射颜色", Color) = (1,1,1,1)
-        _MainTex ("纹理图", 2D) = "white" {}
-		_CutOff("透明裁剪度" ,  Range(0, 1)) = 0.5
+	Properties
+	{
+		_Color("漫反射颜色", Color) = (1,1,1,1)
+		_MainTex("纹理图", 2D) = "white" {}
+		_AlphaScale("透明度" ,  Range(0, 1)) = 0.5
 	}
 
 	SubShader
 	{
 		Tags
 		{
-			"Queue" = "AlphaTest"				//渲染顺序 AlphaTest = 2450
+			"Queue" = "Transparent"				//渲染顺序 Transparent = 3000
 			"IgnoreProjector" = "Ture"			//无视投影器
-			"RenderType" = "TransparentCutout"	//类型：遮罩透明度 （透明镂空，两个通道植被着色器）
+			"RenderType" = "Transparent"		//类型：半透明
 		}
 
 		Pass
 		{
+			ZWrite On							//打开深度测试
+			ColorMask 0							//颜色通道的掩码 为0=不写入任何颜色通道
+		}
+
+
+		Pass
+		{
 			Tags{"LightMode" = "ForwardBase"}	//光照类型：向前渲染
+
+			ZWrite Off							//关掉深度测试
+			Blend SrcAlpha OneMinusSrcAlpha		//设置源颜色（该片元着色器产生的颜色）的混合因子设为ScrAlpha, 设置目标颜色（已经存在于颜色缓冲重的颜色）的混合因子设为OneMinusScrAlpha
 
 			CGPROGRAM							//开始渲染标志位
 
@@ -30,7 +40,7 @@
 			fixed4 _Color;						//漫反射颜色
 			sampler2D _MainTex;					//纹理图
 			float4 _MainTex_ST;					//纹理图坐标
-			fixed _CutOff;						//透明裁剪度
+			fixed _AlphaScale;					//透明度
 
 			struct a2v {
 				float4 vertex:POSITION;			//（应用空间）坐标
@@ -48,7 +58,7 @@
 			v2f vert(a2v v) {
 				v2f o;
 				//得到裁剪空间坐标
-				o.pos = UnityObjectToClipPos( v.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
 
 				//世界空间坐标
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
@@ -72,10 +82,6 @@
 				//得到顶点的纹理图颜色
 				fixed4 texColor = tex2D(_MainTex, i.uv);
 
-				//丢弃掉小于用户指定的透明度的像素点
-				fixed contrastAlphat = texColor.a - _CutOff;
-				clip(contrastAlphat);
-
 				//得到贴图颜色
 				fixed3 albedo = texColor.rgb * _Color.rgb;
 
@@ -85,14 +91,17 @@
 				//得到漫反射
 				fixed3 diffuse = _LightColor0.rgb * albedo * max(0, dot(worldNormal, worldLightDir));
 
-				return fixed4(ambient + diffuse, 1.0);
+				//得到片元的透明度
+				float alpha = texColor.a * _AlphaScale;
+
+				return fixed4(ambient + diffuse, alpha);
 			}
 
-		ENDCG
+			ENDCG
+		}
+
+
 	}
 
-
-}
-
-    FallBack "Specular"
+	FallBack "Diffuse"
 }
