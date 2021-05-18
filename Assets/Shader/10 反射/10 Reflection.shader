@@ -59,7 +59,7 @@ Shader "Custom/10 Reflection"
 				//（世界空间）视图方向
 				o.worldViewDir = UnityWorldSpaceViewDir(o.worldPos);
 
-				//（世界空间）反射方向
+				//（世界空间）反射方向 reflect
 				o.worldRefl = reflect(-o.worldViewDir, o.worldNormal);
 
 				TRANSFER_SHADOW(o);
