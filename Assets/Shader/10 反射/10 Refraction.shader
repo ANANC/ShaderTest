@@ -10,7 +10,8 @@ Shader "Custom/10 Refraction"
 		_RefractRatio("投射比",Range(0.1,1)) = 0.5
 		_Cubemap("环境映射纹理",Cube) = "_Skybox" {}
 	}
-		SubShader
+		
+	SubShader
 	{
 	   Pass{
 			Tags { "LightMode" = "ForwardBase"}	//正向渲染路径的bassPass通道的光照模式 逐像素渲染平行光
