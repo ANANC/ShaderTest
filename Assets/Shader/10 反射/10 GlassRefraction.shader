@@ -48,11 +48,11 @@ Shader "Custom/10 GlassRefraction"
 
 			struct v2f {
 				float4 pos:SV_POSITION;
-				float4 scrPos:POSITION;
-				float4 uv:TEXCOORD0;
-				float4 TtoW0:TEXCOORD1;
-				float4 TtoW1:TEXCOORD2;
-				float4 TtoW2:TEXCOORD3;
+				float4 scrPos:TEXCOORD0;
+				float4 uv:TEXCOORD1;
+				float4 TtoW0:TEXCOORD2;
+				float4 TtoW1:TEXCOORD3;
+				float4 TtoW2:TEXCOORD4;
 			};
 
 			v2f vert(a2v v)
@@ -78,7 +78,7 @@ Shader "Custom/10 GlassRefraction"
 				fixed3 worldNormal = UnityObjectToWorldNormal(v.normal);
 
 				//世界空间切线
-				float worldTangent = UnityObjectToWorldDir(v.tangent.xyz);
+				float3 worldTangent = UnityObjectToWorldDir(v.tangent.xyz);
 
 				//世界空间副法线
 				fixed3 worldBinormal = cross(worldNormal, worldTangent) * v.tangent.w;
@@ -103,7 +103,7 @@ Shader "Custom/10 GlassRefraction"
 				fixed3 bump = UnpackNormal(tex2D(_BumpMap, i.uv.zw));
 
 				//偏移 = 法线 * 扭曲系数 * 玻璃采样纹理坐标
-				float2 offset = bump.xy * _Distorrion * _RefractionTex_TexelSize.xy;
+				float2 offset = bump.xy * _Distortion * _RefractionTex_TexelSize.xy;
 
 				//玻璃纹理坐标 = 偏移 + （原）玻璃纹理坐标
 				i.scrPos.xy = offset + i.scrPos.xy;
@@ -123,9 +123,9 @@ Shader "Custom/10 GlassRefraction"
 				//环境采样
 				fixed3 reflCol = texCUBE(_Cubemap, reflDir).rgb * texColor.rgb;
 
-				fixed3 finalColor = reflColor * (1 - _RefractAmount) + refrCol * _RefractAmount;
+				fixed3 finalColor = reflCol * (1 - _RefractAmount) + refrCol * _RefractAmount;
 
-				return fixed4(finalCoLOR, 1);
+				return fixed4(finalColor, 1);
 			}
 
 			ENDCG
