@@ -8,7 +8,7 @@ Shader "Custom/10 GlassRefraction"
 		_BumpMap("法线纹理",2D) = "bump" {}
 		_Cubemap("环境纹理",Cube) = "_Skybox" {}
 		_Distortion("扭曲系数",Range(0,100)) = 10
-		_RefractiAmount("折射系数",Range(0.0,1.0)) = 1.0
+		_RefractAmount("折射系数",Range(0.0,1.0)) = 1.0
 	}
 
 	SubShader
