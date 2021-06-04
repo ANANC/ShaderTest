@@ -17,7 +17,7 @@
 			}
 
 			Pass{
-				Tags = {"LightMode" = "ForwardBase"}	//光照类型 向前渲染
+				Tags { "LightMode" = "ForwardBase"}	//光照类型 向前渲染
 
 				ZWrite Off	//深度写入
 
@@ -28,6 +28,8 @@
 				#pragma vertex vert
 				#pragma fragment frag
 
+				#include "Lighting.cginc"
+
 				float4 _Color;
 				sampler2D _MainTex;
 				float4 _MainTex_ST;
@@ -36,7 +38,7 @@
 				float _Speed;
 
 				struct a2v {
-					float4 vertex:POSITON;
+					float4 vertex:POSITION;
 					float4 texcoord:TEXCOORD0;
 				};
 
@@ -58,21 +60,21 @@
 					return o;
 				}
 
-				fixed4 frag(v2f f) :SV_Target{
+				fixed4 frag(v2f i) :SV_Target{
 					//_Time是Unity变量 代表从场景加载开始所经历的时间 (x = t/20, y = t, z = 2*t, w = 3*t)
 					//时间 = 取整（当前总时间 * 动画速度）
-					flaot time = floor(_Time.y * _Speed)
+					float time = floor(_Time.y * _Speed);
 
-					// 水平方向的速度 = 取整（时间 / 水平方向序列帧个数）
+					// 水平方向 = 取整（时间 / 水平方向序列帧个数）
 					float row = floor(time / _HorizontalAmount);
 
 					// 垂直方向 = 时间 - 列数 * 个数
 					float column = time - row * _HorizontalAmount;
 
-					// 基础纹理位置加上序列帧采样位置
+					// 原纹理位置加上时间偏移后的序列帧采样位置 y取负数是因为图片第一个在上面，最后在下面
 					half2 uv = i.uv + half2(column, -row);
 
-					//保证偏移后的位置在范围内
+					// 计算最终的偏移位置
 					uv.x /= _HorizontalAmount;
 					uv.y /= _VerticalAmount;
 
@@ -84,8 +86,10 @@
 
 					return c;
 				}
-		}
+
+				ENDCG
+			}
        
-    }
-    FallBack "Transparent/VertexLit"
+		}
+		FallBack "Transparent/VertexLit"
 }

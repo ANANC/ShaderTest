@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 11 ImageSequenceAnimation
-  m_Shader: {fileID: 4800000, guid: 6eaf1658a61d1bb41af9dd00a5da42f3, type: 3}
+  m_Name: 11 ScrollingBackground
+  m_Shader: {fileID: 4800000, guid: a6624f2695e2730429b1296636fedc18, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -35,12 +35,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DetailTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 4a155be7512edc247939e669864f41d5, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -63,17 +67,17 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HorizontalAmount: 8
     - _Metallic: 0
     - _Mode: 0
+    - _Multiplier: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _Scroll2X: 1
+    - _ScrollX: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 40
     - _SrcBlend: 1
     - _UVSec: 0
-    - _VerticalAmount: 8
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
