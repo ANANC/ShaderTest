@@ -50,23 +50,19 @@
 				//裁剪空间坐标
 				o.pos = UnityObjectToClipPos(v.vertex);
 
-				/*
-				//frac 返回参数的小数部分
+				
+				//frac 返回参数的小数部分 用小数更平滑
 				//底层纹理随着时间的偏差值 
 				float xyDiscrepancy = frac(float2(_ScrollX, 0.0) * _Time.y);
 
 				//底层纹理坐标 = 起始纹理坐标 + 偏差值
-				o.uv.xy = TRANSFORM_TEX(v.texcoord, _MainTex) + xyDiscrepancy;
+				o.uv.xy = TRANSFORM_TEX(v.texcoord, _MainTex) + float2(xyDiscrepancy, 0);
 
 				//表层纹理随时间的偏差值
 				float zwDiscrepancy = frac(float2(_Scroll2X, 0.0) * _Time.y);
 
 				//表层纹理坐标 = 起始纹理坐标 + 偏差值
-				o.uv.zw = TRANSFORM_TEX(v.texcoord, _DetailTex) + zwDiscrepancy;
-				*/
-
-				o.uv.xy = TRANSFORM_TEX(v.texcoord, _MainTex) + frac(float2(_ScrollX, 0.0) * _Time.y);
-				o.uv.zw = TRANSFORM_TEX(v.texcoord, _DetailTex) + frac(float2(_Scroll2X, 0.0) * _Time.y);
+				o.uv.zw = TRANSFORM_TEX(v.texcoord, _DetailTex) + float2(zwDiscrepancy, 0);
 
 				return o;
 			}
